@@ -24,8 +24,8 @@ const testCases = [
   {
     id: 'Pos_Fun_0004',
     description: 'Interrogative (Question)',
-    input: 'oyaagea gama kohedha?',
-    expectedKeywords: ['ඔයාගේ', 'ගම', 'කොහෙද']
+    input: 'oyaage gama kohedha?',
+    expectedKeywords: ['ඔයාගෙ', 'ගම', 'කොහෙද']
   },
   {
     id: 'Pos_Fun_0005',
@@ -37,13 +37,13 @@ const testCases = [
     id: 'Pos_Fun_0006',
     description: 'Past tense usage',
     input: 'nangi pereedhaa guvan thotupalata giyaa.',
-    expectedKeywords: ['නන්ගි', 'පෙරේදා', 'ගුවන්', 'තොටුපලට', 'ගියා']
+    expectedKeywords: ['නංගි', 'පෙරේදා', 'ගුවන්', 'තොටුපලට', 'ගියා']
   },
   {
     id: 'Pos_Fun_0007',
     description: 'Future tense usage',
-    input: 'api labana sathiye trip ekak yamu.',
-    expectedKeywords: ['අපි', 'ලබන', 'සතියෙ', 'trip', 'එකක්']
+    input: 'api labana sathiyea trip ekak yamu.',
+    expectedKeywords: ['අපි', 'ලබන', 'සතියේ', 'trip', 'එකක්']
   },
   {
     id: 'Pos_Fun_0008',
@@ -60,8 +60,8 @@ const testCases = [
   {
     id: 'Pos_Fun_0010',
     description: 'Polite Request',
-    input: 'karunakara mata pen eka dhenawada?',
-    expectedKeywords: ['කරුනකර', 'මට', 'pen', 'එක']
+    input: 'karunaakara mata pen eka dhenavadha?',
+    expectedKeywords: ['කරුණාකර', 'මට', 'pen', 'එක']
   },
   {
     id: 'Pos_Fun_0011',
@@ -127,13 +127,12 @@ const testCases = [
     id: 'Pos_Fun_0021',
     description: 'Long Paragraph',
     input: 'Pariganaka vidyaava yanu thaththu haa gananaya kireem pilibanda vidyaavaki.',
-    expectedKeywords: ['විඩ්යාව', 'යනු', 'තත්තු', 'හා', 'ගනනය']
-  },
+    expectedKeywords: ['විඩ්යාව', 'යනු', 'තත්තු', 'හා', 'ගනනය']  },
   {
     id: 'Pos_Fun_0022',
     description: 'Formatting Line Breaks & Units',
-    input: 'list eka: \n1. paan \n2. seeni 2kg',
-    expectedKeywords: ['list', 'එක:', 'පාන්', 'සේනි', '2kg']
+    input: 'list eka: \n1. paan \n2. siini 2kg',
+    expectedKeywords: ['list', 'එක:', 'පාන්', 'සීනි', '2kg']
   },
   {
     id: 'Pos_Fun_0023',
@@ -249,12 +248,14 @@ test.describe('Assignment 1: Singlish to Sinhala Automation', () => {
         }
       }
       
+      // Fallback: Try to find output by looking for generic elements containing expected keywords
       if (!output && tc.expectedKeywords.length > 0) {
         const searchKey = tc.expectedKeywords[0];
         const candidates = await page.locator('generic').filter({ hasText: searchKey }).all();
         
         for (const el of candidates) {
           const text = await el.textContent();
+          // Filter to ensure we grab only the output text, not the whole page
           if (text && text.includes(searchKey) && !text.includes('Singlish') && text.length < 500) {
             output = text.trim();
             break;
@@ -270,6 +271,7 @@ test.describe('Assignment 1: Singlish to Sinhala Automation', () => {
       console.log(`[${tc.id}] Input: "${tc.input}" | Output Found: "${output.substring(0, 50)}..."`);
 
       // ✅ Assertions
+      // We use expect.soft so that if one fails, the rest of the tests still run
       for (const keyword of tc.expectedKeywords) {
         await expect.soft(output).toContain(keyword);
       }
